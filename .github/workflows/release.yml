@@ -30,4 +30,3 @@ jobs:
         run: |
           cp ./src/*.ts "$BUILD_PATH"/
           tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz -C "$BUILD_PATH" *
-      - name: Upload

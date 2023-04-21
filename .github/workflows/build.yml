@@ -9,7 +9,7 @@ on:
         required: true
 
 jobs:
-  name: Build for target ${{ inputs.target }}, with ${{ inputs.module }} modules
+  name: Build
   outputs:
     build-path: ${{ steps.build-path }}
   steps:
