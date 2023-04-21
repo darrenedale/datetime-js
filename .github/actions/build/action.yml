@@ -26,6 +26,4 @@ runs:
       shell: bash
       run: |
         cd "${{ steps.build-path.outputs.build-path }}"
-        pwd
         tsc
-        cd -

@@ -20,12 +20,13 @@ jobs:
         run: npm install typescript
       - name: Checkout source
         uses: actions/checkout@v3
-      - name: Build ${{ matrix.target }}/${{ matrix.module }}
+      - id: build
+        name: Build ${{ matrix.target }}/${{ matrix.module }}
         uses: ./.github/actions/build
         with:
           target: ${{ matrix.target }}
           module: ${{ matrix.module }}
       - name: Package
         run: |
-          cp ./src/*.ts "$BUILD_PATH"/
-          tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz -C "$BUILD_PATH" *
+          cp ./src/*.ts "${{ steps.build.outputs.build-path }}"/
+          tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz -C "${{ steps.build.outputs.build-path }}" *
