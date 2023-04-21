@@ -1,0 +1,33 @@
+name: Create release artifacts
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+
+jobs:
+  setup:
+    name: Setup build environment
+    steps:
+    - name: Install packages
+      run: npm install typescript
+    - name: Checkout source
+      uses: actions/checkout@v3
+  package:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext]
+        module: [commonjs, es2015, es2022, es2022]
+    steps:
+      - name: Build ${{ matrix.target }}/${{ matrix.module }}
+        uses: ./.github/workflows/build.yml
+        with:
+          target: ${{ matrix.target }}
+          module: ${{ matrix.module }}
+      - name: Package
+        run: |
+          cp ./src/*.ts "$BUILD_PATH"/
+          tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz -C "$BUILD_PATH" *
+      - name: Upload

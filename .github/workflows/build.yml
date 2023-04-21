@@ -1,0 +1,25 @@
+on:
+  workflow_call:
+    inputs:
+      target:
+        type: string
+        required: true
+      module:
+        type: string
+        required: true
+
+jobs:
+  name: Build for target ${{ inputs.target }}, with ${{ inputs.module }} modules
+  outputs:
+    build-path: ${{ steps.build-path }}
+  steps:
+    - id: build-path
+      name: Configure build
+      run: |
+        BUILD_PATH=${{ inputs.target + ("" === inputs.module ? "" : "-" + inputs.module) }}
+        echo $BUILD_PATH >> "$GITHUB_OUTPUT"
+    - name: Build
+      run: |
+        cd "$BUILD_PATH"
+        tsc
+        cd -
