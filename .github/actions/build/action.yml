@@ -1,24 +1,29 @@
-on:
-  workflow_call:
-    inputs:
-      target:
-        type: string
-        required: true
-      module:
-        type: string
-        required: true
+name: Build datetime-js
+description: Build the DateTime.js project for a given target lib and module system
 
-jobs:
-  name: Build
-  outputs:
-    build-path: ${{ steps.build-path }}
+inputs:
+  target:
+    description: The target js lib for the build
+    required: true
+  module:
+    description: The target module system for the build
+    required: true
+outputs:
+  build-path:
+    description: The build path where the build artifacts have been generated
+    value: ${{ steps.build-path }}
+
+runs:
+  using: composite
   steps:
     - id: build-path
       name: Configure build
+      shell: bash
       run: |
         BUILD_PATH=${{ inputs.target + ("" === inputs.module ? "" : "-" + inputs.module) }}
         echo $BUILD_PATH >> "$GITHUB_OUTPUT"
     - name: Build
+      shell: bash
       run: |
         cd "$BUILD_PATH"
         tsc
