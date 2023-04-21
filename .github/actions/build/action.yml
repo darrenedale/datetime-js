@@ -11,7 +11,7 @@ inputs:
 outputs:
   build-path:
     description: The build path where the build artifacts have been generated
-    value: ${{ steps.build-path }}
+    value: ${{ steps.build-path.outputs.build-path }}
 
 runs:
   using: composite
@@ -21,7 +21,7 @@ runs:
       shell: bash
       run: |
         BUILD_PATH=${{ inputs.target }}/${{ inputs.module }}
-        echo $BUILD_PATH >> "$GITHUB_OUTPUT"
+        echo "build-path=$BUILD_PATH' >> "$GITHUB_OUTPUT"
     - name: Build
       shell: bash
       run: |
