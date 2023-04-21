@@ -4,12 +4,18 @@ type TimeZoneOffsetMap = {
     [key: string]: number,
 };
 
+/** Interface for TimeZone objects. */
+export interface TimeZoneInterface
+{
+    readonly offset: number;
+}
+
 /**
  * A representation of a TimeZone.
  *
  * Used by the DateTime class to enable it to represent dates and times in arbitrary time zones.
  */
-export class TimeZone
+export class TimeZone implements TimeZoneInterface
 {
     // UTC offsets from timezone database as at 15th Apr 2023
     private static readonly NamedTimeZones: TimeZoneOffsetMap = {
@@ -637,12 +643,13 @@ export class TimeZone
         "SST": -660,
     };
 
+    /** The offset in minutes from UTC for the TimeZone object. */
     private readonly m_offset: number;
 
     /**
      * Initialise a new TimeZone object.
      *
-     * @param offset The TimeZone offset, either a number of minutes relative to UTC, an hours:minutes offset from UTC
+     * @param offset The TimeZone offset, either a number of minutes relative to UTC, an hours:minutes offset from UTC,
      * or a recognised time zone string from the timezone database.
      */
     public constructor(offset: number|string)
@@ -670,11 +677,13 @@ export class TimeZone
         this.m_offset = offset;
     }
 
+    /** The offset, in minutes, of the timezone from UTC. */
     public get offset(): number
     {
         return this.m_offset;
     }
 
+    /** Convenience property to fetch a TimeZone object representing UTC. */
     public static get utc(): TimeZone
     {
         return new TimeZone(0);

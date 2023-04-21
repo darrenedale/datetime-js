@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "none",
+    "target": "esnext",
+    "sourceMap": false,
+    "outFile": "./datetime.js"
+  },
+  "include": [
+    "../../src/*.ts"
+  ]
+}

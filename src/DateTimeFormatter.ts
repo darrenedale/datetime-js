@@ -7,6 +7,13 @@ type ComponentFormatterMap = {
     [specifier: string]: ComponentFormatter;
 };
 
+interface DateTimeFormatterInterface
+{
+    formatString: string;
+
+    format(dateTime: DateTimeInterface): string;
+}
+
 /**
  * Format DateTime instances as strings, according to a format.
  *
@@ -21,6 +28,7 @@ type ComponentFormatterMap = {
  *
  * The following placeholders are defined internally:
  * - Y 4-digit year, left-padded with 0s if required
+ * - y 2-digit year, left-padded with 0s if required
  * - year:n n-digit year, left-padded with 0s if required. n is a minimum (more digits will be used if required), and
  *   defaults to 4
  * - M 2-digit month, left-padded with 0 if required
@@ -44,7 +52,7 @@ type ComponentFormatterMap = {
  * - z the offset from UTC as [+-]HHMM
  * - { a literal {
  */
-export class DateFormatter
+export class DateTimeFormatter implements DateTimeFormatterInterface
 {
     /** Regular expression to extract placeholders from the format string. */
     private static readonly PlaceholderMatcher = /\{([^}]+)(?::([^}]+))?}/;
@@ -60,13 +68,19 @@ export class DateFormatter
      *
      * @param format The format string.
      */
-    public constructor(format: string)
+    public constructor(format: string = "")
     {
-        if (0 === Object.keys(DateFormatter.formatters).length) {
-            DateFormatter.createInternalFormatters();
+        if (0 === Object.keys(DateTimeFormatter.formatters).length) {
+            DateTimeFormatter.createInternalFormatters();
         }
 
         this.m_format = format;
+    }
+
+    /** Format string to produce IS8601 date-time strings. */
+    public static get formatStringIso8601(): string
+    {
+        return "{Y}-{M}-{D}T{h}:{m}:{s}.{ms}{Z}";
     }
 
     /** The format string. */
@@ -98,12 +112,13 @@ export class DateFormatter
     /** Helper to build the set of internally-provided component formatters on creation of the first DateFormatter instance. */
     private static createInternalFormatters(): void
     {
-        DateFormatter.formatters = {
+        DateTimeFormatter.formatters = {
             "{": () => "{",
-            "Y": (dateTime: DateTimeInterface) => DateFormatter.pad(dateTime.year, 4, "0"),
+            "Y": (dateTime: DateTimeInterface) => DateTimeFormatter.pad(dateTime.year % 10000, 4, "0"),
+            "y": (dateTime: DateTimeInterface) => DateTimeFormatter.pad(dateTime.year % 100, 2, "0"),
             "year": function(dateTime: DateTimeInterface, args: string): string {
                 const digits = Number.parseInt(args ?? "4");
-                const year = DateFormatter.pad(dateTime.year, Number.parseInt(args), "0");
+                const year = DateTimeFormatter.pad(dateTime.year, digits, "0");
 
                 if (digits < year.length) {
                     return year.substring(year.length - digits);
@@ -111,19 +126,19 @@ export class DateFormatter
 
                 return year;
             },
-            "M": (dateTime: DateTimeInterface) => DateFormatter.pad(dateTime.month, 2, "0"),
-            "month": (dateTime: DateTimeInterface, args: string) => DateFormatter.pad(dateTime.month, Number.parseInt(args ?? "1"), "0"),
-            "D": (dateTime: DateTimeInterface) => DateFormatter.pad(dateTime.day, 2, "0"),
-            "day": (dateTime: DateTimeInterface, args: string) => DateFormatter.pad(dateTime.day, Number.parseInt(args ?? "1"), "0"),
-            "h": (dateTime: DateTimeInterface) => DateFormatter.pad(dateTime.hour, 2, "0"),
-            "hour": (dateTime: DateTimeInterface, args: string) => DateFormatter.pad(dateTime.hour, Number.parseInt(args ?? "1"), "0"),
-            "m": (dateTime: DateTimeInterface) => DateFormatter.pad(dateTime.minute, 2, "0"),
-            "minute": (dateTime: DateTimeInterface, args: string) => DateFormatter.pad(dateTime.minute, Number.parseInt(args ?? "1"), "0"),
-            "s": (dateTime: DateTimeInterface) => DateFormatter.pad(dateTime.second, 2, "0"),
-            "second": (dateTime: DateTimeInterface, args: string) => DateFormatter.pad(dateTime.second, Number.parseInt(args ?? "1"), "0"),
-            "ms": (dateTime: DateTimeInterface, args: string) => DateFormatter.pad(dateTime.second, Number.parseInt(args ?? "1"), "0"),
-            "Z": (dateTime: DateTimeInterface) => (0 > dateTime.timeZone.offset ? "-" : "+") + DateFormatter.pad(Math.floor(Math.abs(dateTime.timeZone.offset) / 60), 2, "0") + ":" + DateFormatter.pad(Math.abs(dateTime.timeZone.offset) % 60, 2, "0"),
-            "z": (dateTime: DateTimeInterface) => (0 > dateTime.timeZone.offset ? "-" : "+") + DateFormatter.pad(Math.floor(Math.abs(dateTime.timeZone.offset) / 60), 2, "0") + DateFormatter.pad(Math.abs(dateTime.timeZone.offset) % 60, 2, "0"),
+            "M": (dateTime: DateTimeInterface) => DateTimeFormatter.pad(dateTime.month, 2, "0"),
+            "month": (dateTime: DateTimeInterface, args: string) => DateTimeFormatter.pad(dateTime.month, Number.parseInt(args ?? "1"), "0"),
+            "D": (dateTime: DateTimeInterface) => DateTimeFormatter.pad(dateTime.day, 2, "0"),
+            "day": (dateTime: DateTimeInterface, args: string) => DateTimeFormatter.pad(dateTime.day, Number.parseInt(args ?? "1"), "0"),
+            "h": (dateTime: DateTimeInterface) => DateTimeFormatter.pad(dateTime.hour, 2, "0"),
+            "hour": (dateTime: DateTimeInterface, args: string) => DateTimeFormatter.pad(dateTime.hour, Number.parseInt(args ?? "1"), "0"),
+            "m": (dateTime: DateTimeInterface) => DateTimeFormatter.pad(dateTime.minute, 2, "0"),
+            "minute": (dateTime: DateTimeInterface, args: string) => DateTimeFormatter.pad(dateTime.minute, Number.parseInt(args ?? "1"), "0"),
+            "s": (dateTime: DateTimeInterface) => DateTimeFormatter.pad(dateTime.second, 2, "0"),
+            "second": (dateTime: DateTimeInterface, args: string) => DateTimeFormatter.pad(dateTime.second, Number.parseInt(args ?? "1"), "0"),
+            "ms": (dateTime: DateTimeInterface, args: string) => DateTimeFormatter.pad(dateTime.second, Number.parseInt(args ?? "1"), "0"),
+            "Z": (dateTime: DateTimeInterface) => (0 > dateTime.timeZone.offset ? "-" : "+") + DateTimeFormatter.pad(Math.floor(Math.abs(dateTime.timeZone.offset) / 60), 2, "0") + ":" + DateTimeFormatter.pad(Math.abs(dateTime.timeZone.offset) % 60, 2, "0"),
+            "z": (dateTime: DateTimeInterface) => (0 > dateTime.timeZone.offset ? "-" : "+") + DateTimeFormatter.pad(Math.floor(Math.abs(dateTime.timeZone.offset) / 60), 2, "0") + DateTimeFormatter.pad(Math.abs(dateTime.timeZone.offset) % 60, 2, "0"),
             "weekday": (dateTime: DateTimeInterface, args: string) => {
                 if ("short" === args) {
                     switch (dateTime.weekday) {
@@ -161,11 +176,11 @@ export class DateFormatter
      */
     public static addFormatter(specifier: string, formatter: ComponentFormatter): void
     {
-        if (undefined !== DateFormatter.formatters[specifier]) {
+        if (undefined !== DateTimeFormatter.formatters[specifier]) {
             throw new DateFormatterError(`Format specifier ${specifier} is already taken.`);
         }
 
-        DateFormatter.formatters[specifier] = formatter;
+        DateTimeFormatter.formatters[specifier] = formatter;
     }
 
     /**
@@ -179,16 +194,16 @@ export class DateFormatter
         let str: string = "";
         let result: RegExpExecArray;
 
-        while (result = DateFormatter.PlaceholderMatcher.exec(format)) {
+        while (result = DateTimeFormatter.PlaceholderMatcher.exec(format)) {
             const [match, formatter, args] = result;
 
-            if (undefined === DateFormatter.formatters[formatter]) {
+            if (undefined === DateTimeFormatter.formatters[formatter]) {
                 throw new DateFormatterError(`Undefined component formatter '${formatter}'.`);
             }
 
             // add any literal content from the format string before the placeholder, followed by the formatted
             // component from the DateTime
-            str += format.substring(0, result.index) + DateFormatter.formatters[formatter](dateTime, args);
+            str += format.substring(0, result.index) + DateTimeFormatter.formatters[formatter](dateTime, args);
             format = format.substring(result.index + match.length);
         }
 

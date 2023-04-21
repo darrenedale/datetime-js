@@ -1,20 +1,8 @@
 import {TimeZone} from "./TimeZone.js";
 import {DateTimeError} from "./DateTimeError.js";
+import {DateTimeFormatter} from "./DateTimeFormatter.js";
 
-export interface DateTimeInterface
-{
-    timestamp: number;
-    year: number;
-    month: number;
-    day: number;
-    hour: number;
-    minute: number;
-    second: number;
-    ms: number;
-    weekday: Weekday;
-    timeZone: TimeZone;
-}
-
+/** Enumeration of options for the weekday component of a DateTime. */
 export enum Weekday
 {
     Sunday= 0,
@@ -26,12 +14,28 @@ export enum Weekday
     Saturday,
 }
 
+/** Interface for DateTime instances. */
+export interface DateTimeInterface
+{
+    readonly timestamp: number;
+    readonly year: number;
+    readonly month: number;
+    readonly day: number;
+    readonly hour: number;
+    readonly minute: number;
+    readonly second: number;
+    readonly ms: number;
+    readonly weekday: Weekday;
+    readonly timeZone: TimeZone;
+}
+
+
 /**
  * Representation of a date and time, accurate to the millisecond, for a given timezone.
  *
  * Instances are immutable and guaranteed to be valid - you can't create an invalid DateTime.
  */
-export class DateTime
+export class DateTime implements DateTimeInterface
 {
     /** Unix timestamp in ms. */
     private readonly m_timestamp: number;
@@ -62,6 +66,8 @@ export class DateTime
 
     /** The timezone. */
     private readonly m_timezone: TimeZone;
+
+    private m_formatter?: DateTimeFormatter;
 
     /**
      * Initialise a new DateTime with an ECMA timestamp and a timezone.
@@ -216,26 +222,14 @@ export class DateTime
         return new DateTime(timestamp, this.timeZone);
     }
 
-    /**
-     * Helper to pad an int to a given digit length.
-     *
-     * Padding is alwasy to the left of the value.
-     *
-     * @param value The int to pad.
-     * @param length The length to pad it to.
-     * @param ch The character to use to pad.
-     */
-    private static pad(value: number, length: number, ch: string): string
+    /** Get the formatter for the DateTime. */
+    protected get formatter(): DateTimeFormatter
     {
-        let str = `${value}`;
-        length -= str.length;
-
-        while (0 < length) {
-            str = `${ch[0]}${str}`;
-            --length;
+        if (undefined === this.m_formatter) {
+            this.m_formatter = new DateTimeFormatter();
         }
 
-        return str;
+        return this.m_formatter;
     }
 
     /**
@@ -245,32 +239,8 @@ export class DateTime
      */
     public toISOString(): string
     {
-        const year = DateTime.pad(this.year, 4, "0");
-        const month = DateTime.pad(this.month, 2, "0");
-        const day = DateTime.pad(this.day, 2, "0");
-        const hour = DateTime.pad(this.hour, 2, "0");
-        const minute = DateTime.pad(this.minute, 2, "0");
-        const second = DateTime.pad(this.second, 2, "0");
-        const ms = DateTime.pad(this.ms, 3, "0");
-        let tz: string;
-
-        if (0 === this.timeZone.offset) {
-            tz = "UTC";
-        } else {
-            let offset = this.timeZone.offset;
-
-            if (0 > offset) {
-                tz = "-";
-                offset = -offset;
-            } else {
-                tz = "+";
-            }
-
-            tz += DateTime.pad(Math.floor(offset / 60), 2, "0")
-                  + DateTime.pad(offset % 60, 2, "0")
-        }
-
-        return `${year}-${month}-${day}T${hour}:${minute}:${second}.${ms}${tz}`;
+        this.formatter.formatString = DateTimeFormatter.formatStringIso8601;
+        return this.formatter.format(this);
     }
 
     /**
