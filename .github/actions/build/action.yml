@@ -20,7 +20,7 @@ runs:
       name: Configure
       shell: bash
       run: |
-        BUILD_PATH=${{ inputs.target }}/${{ inputs.module }}
+        BUILD_PATH=build/${{ inputs.target }}/${{ inputs.module }}
         echo "build-path=$BUILD_PATH" >> "$GITHUB_OUTPUT"
     - name: Build
       shell: bash
