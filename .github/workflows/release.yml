@@ -29,4 +29,4 @@ jobs:
       - name: Package
         run: |
           cp ./src/*.ts "${{ steps.build.outputs.build-path }}"/
-          tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz -C "${{ steps.build.outputs.build-path }}" *
+          tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz -C "${{ steps.build.outputs.build-path }}"/*
