@@ -19,7 +19,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Build ${{ matrix.target }}/${{ matrix.module }}
-        uses: ./.github/workflows/build.yml
+        uses: ./.github/actions/build
         with:
           target: ${{ matrix.target }}
           module: ${{ matrix.module }}
