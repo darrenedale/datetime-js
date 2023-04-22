@@ -8,6 +8,7 @@ on:
 jobs:
   package:
     runs-on: ubuntu-latest
+    concurrency: release
     strategy:
       matrix:
 #        target: [es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext]
@@ -40,6 +41,7 @@ jobs:
           retention-days: 1
   release:
     runs-on: ubuntu-latest
+    concurrency: release
     outputs:
       upload-url: ${{ steps.create-release.outputs.upload_url }}
     steps:
@@ -55,6 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
   upload-assets:
     runs-on: ubuntu-latest
+    concurrency: release
     strategy:
       matrix:
 #        target: [es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext]
