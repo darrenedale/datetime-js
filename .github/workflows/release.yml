@@ -1,10 +1,9 @@
-name: Create release artifacts
+name: Create release
 
 on:
-  release:
-    types: [published]
   push:
     branches: [main]
+#    tags: *
 
 jobs:
   package:
@@ -26,10 +25,53 @@ jobs:
         with:
           target: ${{ matrix.target }}
           module: ${{ matrix.module }}
-      - name: Package
+      - name: Package ${{ matrix.target }}/${{ matrix.module }}
         run: |
           cp ./src/*.ts "${{ steps.build.outputs.build-path }}"/
           cd "${{ steps.build.outputs.build-path }}"
           tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz *
           cd -
           mv "${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz" ./
+      - name: Upload ${{ matrix.target }}/${{ matrix.module }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+          path: ${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+          retention-days: 1
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload-url: ${{ steps.create-release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create-release
+        uses: actions/create-release@v1
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ github.ref }}
+          tag_name: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+  upload-assets:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+#        target: [es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext]
+        target: [ es2021, es2022 ]
+#        module: [commonjs, es2015, es2020, es2022]
+        module: [ es2020, es2022 ]
+    steps:
+      - name: Fetch build artifact ${{ matrix.target }}/${{ matrix.module }}
+        uses: actions/download-artifact@v3
+        with:
+          name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+      - name: Upload release ${{ github.ref }} asset datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ./datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+          asset_name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+          asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
