@@ -1,26 +1,25 @@
 name: Create release
 
+# whenever a tag is created, build a release
 on:
   push:
-    branches: [main]
-#    tags: *
+    tags: '*'
 
 jobs:
-  package:
+  # build the package for all supported target and module combinations
+  build-packages:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-#        target: [es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext]
-        target: [es2021, es2022]
-#        module: [commonjs, es2015, es2020, es2022]
-        module: [es2020, es2022]
+        target: [es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext]
+        module: [commonjs, es2015, es2020, es2022]
     steps:
       - name: Install packages
         run: npm install typescript
       - name: Checkout source
         uses: actions/checkout@v3
-      - id: build
-        name: Build ${{ matrix.target }}/${{ matrix.module }}
+      - name: Build ${{ matrix.target }}/${{ matrix.module }}
+        id: build
         uses: ./.github/actions/build
         with:
           target: ${{ matrix.target }}
@@ -31,16 +30,17 @@ jobs:
           cd "${{ steps.build.outputs.build-path }}"
           tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz *
           cd -
-#          mv "${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz" ./
       - name: Upload ${{ matrix.target }}/${{ matrix.module }}
         uses: actions/upload-artifact@v3
         with:
           name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
           path: ${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
           retention-days: 1
-  release:
+
+  # create a GitHub release
+  create-release:
     runs-on: ubuntu-latest
-    needs: package
+    needs: build-packages
     outputs:
       upload-url: ${{ steps.create-release.outputs.upload_url }}
     steps:
@@ -54,15 +54,17 @@ jobs:
           tag_name: ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
+
+  # upload the built packages as assets for the release
   upload-assets:
     runs-on: ubuntu-latest
-    needs: release
+    needs:
+      - build-packages
+      - create-release
     strategy:
       matrix:
-#        target: [es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext]
-        target: [ es2021, es2022 ]
-#        module: [commonjs, es2015, es2020, es2022]
-        module: [ es2020, es2022 ]
+        target: [es2015, es2016, es2017, es2018, es2019, es2020, es2021, es2022, esnext]
+        module: [commonjs, es2015, es2020, es2022]
     steps:
       - name: Fetch build artifact ${{ matrix.target }}/${{ matrix.module }}
         uses: actions/download-artifact@v3
