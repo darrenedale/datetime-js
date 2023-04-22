@@ -31,7 +31,7 @@ jobs:
           cd "${{ steps.build.outputs.build-path }}"
           tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz *
           cd -
-          mv "${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz" ./
+#          mv "${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz" ./
       - name: Upload ${{ matrix.target }}/${{ matrix.module }}
         uses: actions/upload-artifact@v3
         with:
