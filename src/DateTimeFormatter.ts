@@ -1,5 +1,5 @@
 import {DateTimeInterface, Weekday} from "./DateTime.js";
-import {DateFormatterError} from "./DateFormatterError.js";
+import {DateTimeFormatterError} from "./DateTimeFormatterError.js";
 
 type ComponentFormatter = (dateTime: DateTimeInterface, args: string) => string;
 
@@ -177,7 +177,7 @@ export class DateTimeFormatter implements DateTimeFormatterInterface
     public static addFormatter(specifier: string, formatter: ComponentFormatter): void
     {
         if (undefined !== DateTimeFormatter.formatters[specifier]) {
-            throw new DateFormatterError(`Format specifier ${specifier} is already taken.`);
+            throw new DateTimeFormatterError(`Format specifier ${specifier} is already taken.`);
         }
 
         DateTimeFormatter.formatters[specifier] = formatter;
@@ -198,7 +198,7 @@ export class DateTimeFormatter implements DateTimeFormatterInterface
             const [match, formatter, args] = result;
 
             if (undefined === DateTimeFormatter.formatters[formatter]) {
-                throw new DateFormatterError(`Undefined component formatter '${formatter}'.`);
+                throw new DateTimeFormatterError(`Undefined component formatter '${formatter}'.`);
             }
 
             // add any literal content from the format string before the placeholder, followed by the formatted
