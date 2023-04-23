@@ -99,14 +99,12 @@ export class DateTimeFormatter implements DateTimeFormatterInterface
     protected static pad(value: number, length: number, ch: string): string
     {
         let str = `${value}`;
-        length -= str.length;
 
-        while (0 < length) {
-            str = `${ch[0]}${str}`;
-            --length;
+        if (str.length >= length) {
+            return str;
         }
 
-        return str;
+        return `${ch[0].repeat(length - str.length)}${str}`;
     }
 
     /** Helper to build the set of internally-provided component formatters on creation of the first DateFormatter instance. */
