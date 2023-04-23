@@ -32,8 +32,8 @@ jobs:
       - name: Package ${{ matrix.target }}/${{ matrix.module }}
         run: |
           cd "${{ steps.build.outputs.build-path }}"
-          zip -r datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip * -x tsconfig.json
-          tar -czf --exclude tsconfig.json --exclude datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz *
+          zip -r "datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip" * -x tsconfig.json
+          tar -czf "datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz" --exclude tsconfig.json --exclude "datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip" *
           cd -
       - name: Upload ${{ matrix.target }}/${{ matrix.module }}
         uses: actions/upload-artifact@v3
