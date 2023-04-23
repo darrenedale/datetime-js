@@ -22,12 +22,10 @@ runs:
       run: |
         BUILD_PATH=./build/${{ inputs.target }}/${{ inputs.module }}
         if [ "standalone" == "${{ inputs.module }}" ]; then
-          # copy the sources to the build dir
-          mkdir "$BUILD_PATH/src"
-          cp ./src/*.ts "$BUILD_PATH/src/"
+          # copy sources to the build dir
+          cp -r ./src "$BUILD_PATH/"
           # patch the module-specific code out of the copied sources
-          sed -i .bak 's/^export //' src/*.ts
-          sed -i .bak 's/^import.*$//' src/*.ts
+          sed -i.bak -e 's/^export //' -e 's/^import.*$//' "$BUILD_PATH/src/*.ts"
         fi
         echo "build-path=$BUILD_PATH" >> "$GITHUB_OUTPUT"
     - name: Build
