@@ -6,6 +6,6 @@
     "outFile": "./datetime.js"
   },
   "include": [
-    "../../src/*.ts"
+    "./src/*.ts"
   ]
 }

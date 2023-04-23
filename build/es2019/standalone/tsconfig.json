@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "module": "none",
-    "target": "es2021",
+    "target": "es2019",
     "sourceMap": false,
     "outFile": "./datetime.js"
   },
   "include": [
-    "../../src/*.ts"
+    "./src/*.ts"
   ]
 }

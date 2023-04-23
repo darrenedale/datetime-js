@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "module": "none",
-    "target": "es2015",
+    "target": "esnext",
     "sourceMap": false,
     "outFile": "./datetime.js"
   },
   "include": [
-    "../../src/*.ts"
+    "./src/*.ts"
   ]
 }
