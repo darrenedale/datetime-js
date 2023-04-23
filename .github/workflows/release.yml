@@ -76,7 +76,7 @@ jobs:
       - name: Fetch build artifact ${{ matrix.target }}/${{ matrix.module }}
         uses: actions/download-artifact@v3
         with:
-          name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+          name: datetime-js-${{ matrix.target }}-${{ matrix.module }}
       - name: Upload release ${{ github.ref }} build for ${{ matrix.target }}/${{ matrix.module }} as tarball
         uses: actions/upload-release-asset@v1
         with:
