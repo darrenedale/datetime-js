@@ -24,17 +24,22 @@ jobs:
         with:
           target: ${{ matrix.target }}
           module: ${{ matrix.module }}
+      - name: Add source files
+        if: "standalone" != matrix.module
+        run: cp ./src/*.ts "${{ steps.build.outputs.build-path }}"/
       - name: Package ${{ matrix.target }}/${{ matrix.module }}
         run: |
-          cp ./src/*.ts "${{ steps.build.outputs.build-path }}"/
           cd "${{ steps.build.outputs.build-path }}"
-          tar -czf datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz *
+          zip -r datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip * -x tsconfig.json
+          tar -czf --exclude tsconfig.json --exclude datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz *
           cd -
       - name: Upload ${{ matrix.target }}/${{ matrix.module }}
         uses: actions/upload-artifact@v3
         with:
-          name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
-          path: ${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+          name: datetime-js-${{ matrix.target }}-${{ matrix.module }}
+          path: |
+            ${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+            ${{ steps.build.outputs.build-path }}/datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip
           retention-days: 1
 
   # create a GitHub release
@@ -70,12 +75,21 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
-      - name: Upload release ${{ github.ref }} asset datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+      - name: Upload release ${{ github.ref }} build for ${{ matrix.target }}/${{ matrix.module }} as tarball
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ needs.create-release.outputs.upload-url }}
           asset_path: ./datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
           asset_name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.tar.gz
+          asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload release ${{ github.ref }} build for ${{ matrix.target }}/${{ matrix.module }} as zip
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload-url }}
+          asset_path: ./datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip
+          asset_name: datetime-js-${{ matrix.target }}-${{ matrix.module }}.zip
           asset_content_type: application/gzip
         env:
           GITHUB_TOKEN: ${{ github.token }}
