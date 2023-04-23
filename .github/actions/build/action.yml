@@ -34,7 +34,8 @@ runs:
         cd "${{ steps.build-path.outputs.build-path }}"
         tsc
     - name: Cleanup
-      if: "standalone" == inputs.module
       shell: bash
       run: |
-        rm -rf "${{ steps.build-path.outputs.build-path }}/src"
+        if [ "standalone" == "${{ inputs.module }}" ]; then
+          rm -rf "${{ steps.build-path.outputs.build-path }}/src"
+        fi
