@@ -1,4 +1,4 @@
-import {TimeZoneError} from "./TimeZoneError.js";
+import {TimeZoneError} from "./TimeZoneError";
 
 type TimeZoneOffsetMap = {
     [key: string]: number,

@@ -1,6 +1,6 @@
-import {TimeZone} from "./TimeZone.js";
-import {DateTimeError} from "./DateTimeError.js";
-import {DateTimeFormatter} from "./DateTimeFormatter.js";
+import {TimeZone} from "./TimeZone";
+import {DateTimeError} from "./DateTimeError";
+import {DateTimeFormatter} from "./DateTimeFormatter";
 
 /** Enumeration of options for the weekday component of a DateTime. */
 export enum Weekday
@@ -28,7 +28,6 @@ export interface DateTimeInterface
     readonly weekday: Weekday;
     readonly timeZone: TimeZone;
 }
-
 
 /**
  * Representation of a date and time, accurate to the millisecond, for a given timezone.
@@ -82,7 +81,7 @@ export class DateTime implements DateTimeInterface
         this.m_timestamp = timestamp;
         this.m_timezone = timeZone;
 
-        // add the offset to the UTC timestamp
+        // add the offset from UTC so that the "UTC" of the Date object is the target time we're after
         const date = new Date(timestamp + (timeZone.offset * 60 * 1000));
 
         // read the fields at the offset

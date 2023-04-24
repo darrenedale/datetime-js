@@ -1,5 +1,5 @@
-import {DateTimeInterface, Weekday} from "./DateTime.js";
-import {DateTimeFormatterError} from "./DateTimeFormatterError.js";
+import {DateTimeInterface, Weekday} from "./DateTime";
+import {DateTimeFormatterError} from "./DateTimeFormatterError";
 
 type ComponentFormatter = (dateTime: DateTimeInterface, args: string) => string;
 
