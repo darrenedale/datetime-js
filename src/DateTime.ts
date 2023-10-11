@@ -174,7 +174,7 @@ export class DateTime implements DateTimeInterface
         return DateTime.fromDateTime(this.year, this.month, this.day, this.hour, minute, this.second, this.ms, this.timeZone);
     }
 
-    /** The day of the DateTime (0..59). */
+    /** The second of the DateTime (0..59). */
     public get second(): number
     {
         return this.m_second;
@@ -186,7 +186,7 @@ export class DateTime implements DateTimeInterface
         return DateTime.fromDateTime(this.year, this.month, this.day, this.hour, this.minute, second, this.ms, this.timeZone);
     }
 
-    /** The day of the DateTime (0..999). */
+    /** The millisecond of the DateTime (0..999). */
     public get ms(): number
     {
         return this.m_ms;
